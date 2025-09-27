@@ -42,7 +42,12 @@ func (nl NadeLineup) String() string {
 }
 
 func main() {
-	demo, err := os.Open("demos/1-b23949fe-fade-4f61-b12d-f30640c4df99-1-1.dem")
+	filename := os.Args[1] // get the demo file path as cmd-line arg
+
+	demo, err := os.Open(filename)
+
+	fmt.Println("File opened")
+	fmt.Printf("demo: %v\n", demo.Name())
 
 	if err != nil {
 		fmt.Printf("Error occurred opening demo file: %v", err)
