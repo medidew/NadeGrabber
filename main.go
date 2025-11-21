@@ -11,15 +11,22 @@ import (
 )
 
 func main() {
+	if len(os.Args) != 2 {
+		fmt.Println("Usage: ./NadeGrabber <path_to_demo_file>")
+		return
+	}
 	filename := os.Args[1] // get the demo file path as cmd-line arg
 
 	demo, err := os.Open(filename)
-	fmt.Printf("File '%v' opened\n", demo.Name())
 	if err != nil {
 		fmt.Printf("Error occurred opening demo file: %v", err)
 	}
+	fmt.Printf("File '%v' opened\n", demo.Name())
 
-	nades := parse(demo)
+	nades, err := parse(demo)
+	if err != nil {
+		fmt.Printf("Error occurred during parsing: %v", err)
+	}
 
 	output_file, err := os.Create("lineups")
 	if err != nil {
@@ -33,7 +40,7 @@ func main() {
 	}
 }
 
-func parse(demo *os.File) map[uint64][]types.NadeLineup {
+func parse(demo *os.File) (map[uint64][]types.NadeLineup, error) {
 	p := demoinfocs.NewParser(demo)
 
 	nades := map[uint64][]types.NadeLineup{}
@@ -58,7 +65,10 @@ func parse(demo *os.File) map[uint64][]types.NadeLineup {
 		nades[thrower.SteamID64] = append(nades[thrower.SteamID64], nl)
 	})
 
-	p.ParseToEnd()
+	err := p.ParseToEnd()
+	if err != nil {
+		return nil, err
+	}
 
-	return nades
+	return nades, nil
 }
